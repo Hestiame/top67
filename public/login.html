@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entrar — quizHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+    font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#6C2BD9,#FF3D81)}
+  .card{background:#fff;border-radius:22px;padding:34px 28px;width:100%;max-width:380px;
+    box-shadow:0 20px 50px rgba(0,0,0,.28);text-align:center}
+  .logo{font-family:'Fredoka',sans-serif;font-size:30px;font-weight:600;color:#2A1E47;margin-bottom:4px}
+  .logo b{color:#FF3D81}
+  p.sub{color:#7C6F93;font-weight:700;font-size:14px;margin-bottom:22px}
+  input{width:100%;padding:14px 16px;border:2px solid #E9E5F2;border-radius:14px;
+    font-family:inherit;font-weight:700;font-size:16px;outline:none;transition:.15s}
+  input:focus{border-color:#6C2BD9}
+  button{width:100%;margin-top:14px;padding:14px;border:0;border-radius:14px;cursor:pointer;
+    font-family:'Fredoka',sans-serif;font-weight:600;font-size:17px;color:#fff;
+    background:linear-gradient(135deg,#6C2BD9,#FF3D81);transition:.15s}
+  button:hover{filter:brightness(1.08)}
+  button:disabled{opacity:.6;cursor:default}
+  .erro{color:#E8433F;font-weight:800;font-size:14px;margin-top:12px;min-height:20px}
+  .link{display:block;margin-top:18px;color:#7C6F93;font-weight:700;font-size:13px;text-decoration:none}
+  .link:hover{color:#6C2BD9}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">quiz<b>Hub</b></div>
+    <p class="sub">Área do apresentador</p>
+    <input id="senha" type="password" placeholder="Senha do apresentador" autocomplete="current-password">
+    <button id="ok">Entrar</button>
+    <div class="erro" id="erro"></div>
+    <a class="link" href="/">← Sou jogador, quero entrar num jogo</a>
+  </div>
+<script>
+  const inp = document.getElementById('senha');
+  const btn = document.getElementById('ok');
+  const err = document.getElementById('erro');
+  async function entrar(){
+    err.textContent = '';
+    const senha = inp.value;
+    if(!senha){ err.textContent = 'Digite a senha'; return; }
+    btn.disabled = true; btn.textContent = 'Entrando...';
+    try{
+      const r = await fetch('/api/host-login', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ senha })
+      });
+      if(r.ok){ location.href = '/host.html'; return; }
+      const d = await r.json().catch(()=>({}));
+      err.textContent = d.error || 'Não deu para entrar';
+    }catch(e){ err.textContent = 'Sem conexão com o servidor'; }
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+  btn.onclick = entrar;
+  inp.onkeydown = e => { if(e.key === 'Enter') entrar(); };
+  inp.focus();
+</script>
+</body>
+</html>
